@@ -1,13 +1,19 @@
 import { useRef, useState } from "react";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import worldcup from "@/assets/trophy-worldcup.jpg";
+import ballondor from "@/assets/trophy-ballondor.jpg";
+import copa from "@/assets/trophy-copa.jpg";
+import ucl from "@/assets/trophy-ucl.jpg";
+import laliga from "@/assets/trophy-laliga.jpg";
+import olympic from "@/assets/trophy-olympic.jpg";
 
 const trophies = [
-  { t: "FIFA World Cup", y: "2022", c: "oklch(0.78 0.15 85)" },
-  { t: "Ballon d'Or", y: "×8", c: "oklch(0.82 0.16 80)" },
-  { t: "Copa América", y: "2021 · 24", c: "oklch(0.7 0.16 240)" },
-  { t: "Champions League", y: "×4", c: "oklch(0.55 0.18 250)" },
-  { t: "La Liga", y: "×10", c: "oklch(0.6 0.2 25)" },
-  { t: "Olympic Gold", y: "2008", c: "oklch(0.78 0.15 85)" },
+  { t: "FIFA World Cup", y: "2022", c: "oklch(0.78 0.15 85)", img: worldcup },
+  { t: "Ballon d'Or", y: "×8", c: "oklch(0.82 0.16 80)", img: ballondor },
+  { t: "Copa América", y: "2021 · 24", c: "oklch(0.7 0.16 240)", img: copa },
+  { t: "Champions League", y: "×4", c: "oklch(0.55 0.18 250)", img: ucl },
+  { t: "La Liga", y: "×10", c: "oklch(0.6 0.2 25)", img: laliga },
+  { t: "Olympic Gold", y: "2008", c: "oklch(0.78 0.15 85)", img: olympic },
 ];
 
 export function TrophyRoom() {
@@ -48,18 +54,28 @@ export function TrophyRoom() {
                 onMouseEnter={() => setHover(i)}
                 onMouseMove={onMove(i)}
                 onMouseLeave={onLeave(i)}
-                className="gpu relative aspect-[4/5] rounded-md border border-border bg-card p-8 transition-[transform,filter] duration-500 ease-out [transform-style:preserve-3d]"
+                className="gpu relative aspect-[4/5] overflow-hidden rounded-md border border-border bg-card transition-[transform,filter] duration-500 ease-out [transform-style:preserve-3d]"
                 style={{
                   transform: `perspective(1200px) rotateY(${t.x}deg) rotateX(${t.y}deg) translateZ(${isHovered ? 60 : 0}px) scale(${isHovered ? 1.04 : 1})`,
                   filter: isOther ? "blur(4px) brightness(0.6)" : "none",
                   boxShadow: isHovered ? `0 30px 80px -20px ${tr.c}` : "0 10px 30px -20px rgba(0,0,0,0.5)",
                 }}
               >
-                <div
-                  className="absolute inset-0 rounded-md opacity-30"
-                  style={{ background: `radial-gradient(circle at 50% 30%, ${tr.c}, transparent 60%)` }}
+                <img
+                  src={tr.img}
+                  alt={`Lionel Messi with the ${tr.t} trophy`}
+                  loading="lazy"
+                  width={768}
+                  height={960}
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out"
+                  style={{ transform: isHovered ? "scale(1.08)" : "scale(1)" }}
                 />
-                <div className="relative flex h-full flex-col justify-between">
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/10" />
+                <div
+                  className="absolute inset-0 opacity-40 mix-blend-screen"
+                  style={{ background: `radial-gradient(circle at 50% 20%, ${tr.c}, transparent 60%)` }}
+                />
+                <div className="relative flex h-full flex-col justify-between p-8">
                   <div className="text-[10px] uppercase tracking-wider-2 text-muted-foreground">#{String(i + 1).padStart(2, "0")}</div>
                   <div>
                     <div className="text-display text-3xl leading-tight">{tr.t}</div>
