@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import img from "@/assets/world-cup-glory.jpg";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { useBackground } from "./BackgroundContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -18,9 +19,22 @@ export function Glory() {
   const ref = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reduced = useReducedMotion();
+  const { setActiveSection } = useBackground();
 
   useEffect(() => {
-    if (reduced || !ref.current) return;
+    if (!ref.current) return;
+
+    const stBg = ScrollTrigger.create({
+      trigger: ref.current,
+      start: "top 50%",
+      end: "bottom 50%",
+      onToggle: (self) => {
+        if (self.isActive) setActiveSection("glory");
+      },
+    });
+
+    if (reduced) return () => stBg.kill();
+
     const ctx = gsap.context(() => {
       gsap.fromTo(".glory-wrap", { filter: "grayscale(1) brightness(0.7)" }, {
         filter: "grayscale(0) brightness(1)", ease: "none",
@@ -31,23 +45,28 @@ export function Glory() {
         scrollTrigger: { trigger: ".glory-arc", start: "top 75%" },
       });
 
-      const img = ref.current!.querySelector<HTMLElement>(".glory-img");
-      if (img) {
+      const imgEl = ref.current!.querySelector<HTMLElement>(".glory-img");
+      if (imgEl) {
         const onMove = (e: MouseEvent) => {
-          const r = img.getBoundingClientRect();
+          const r = imgEl.getBoundingClientRect();
           const x = (e.clientX - r.left) / r.width - 0.5;
           const y = (e.clientY - r.top) / r.height - 0.5;
-          gsap.to(img, { rotateY: x * 12, rotateX: -y * 12, duration: 0.6, ease: "power2.out", transformPerspective: 1000 });
+          gsap.to(imgEl, { rotateY: x * 12, rotateX: -y * 12, duration: 0.6, ease: "power2.out", transformPerspective: 1000 });
         };
-        const onLeave = () => gsap.to(img, { rotateX: 0, rotateY: 0, duration: 0.8, ease: "power3.out" });
-        img.addEventListener("mousemove", onMove);
-        img.addEventListener("mouseleave", onLeave);
+        const onLeave = () => gsap.to(imgEl, { rotateX: 0, rotateY: 0, duration: 0.8, ease: "power3.out" });
+        imgEl.addEventListener("mousemove", onMove);
+        imgEl.addEventListener("mouseleave", onLeave);
       }
     }, ref);
 
     // Canvas confetti
     const canvas = canvasRef.current;
-    if (!canvas) return () => ctx.revert();
+    if (!canvas) {
+      return () => {
+        ctx.revert();
+        stBg.kill();
+      };
+    }
     const c = canvas.getContext("2d")!;
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     let raf = 0;
@@ -95,7 +114,7 @@ export function Glory() {
     };
     window.addEventListener("scroll", onScroll, { passive: true });
 
-    const st = ScrollTrigger.create({
+    const stConfetti = ScrollTrigger.create({
       trigger: ref.current,
       start: "top 60%",
       end: "bottom 20%",
@@ -104,14 +123,17 @@ export function Glory() {
 
     loop();
     return () => {
-      ctx.revert(); st.kill(); cancelAnimationFrame(raf);
+      ctx.revert();
+      stBg.kill();
+      stConfetti.kill();
+      cancelAnimationFrame(raf);
       window.removeEventListener("resize", resize);
       window.removeEventListener("scroll", onScroll);
     };
-  }, [reduced]);
+  }, [reduced, setActiveSection]);
 
   return (
-    <section ref={ref} className="glory-wrap relative min-h-screen overflow-hidden bg-background px-6 py-32">
+    <section ref={ref} className="glory-wrap relative min-h-screen overflow-hidden bg-transparent px-6 py-32">
       <canvas ref={canvasRef} className="pointer-events-none absolute inset-0 z-20 h-full w-full" />
       <div className="relative z-10 mx-auto max-w-7xl">
         <div className="mb-12 text-xs uppercase tracking-wider-2 text-sky">Chapter 03 · Albiceleste</div>
@@ -134,7 +156,7 @@ export function Glory() {
             ))}
           </div>
 
-          <div className="glory-img gpu overflow-hidden rounded-md" style={{ transformStyle: "preserve-3d" }}>
+          <div className="glory-img gpu overflow-hidden rounded-md shadow-2xl" style={{ transformStyle: "preserve-3d" }}>
             <img src={img} alt="A golden trophy lifted to the sky" width={1920} height={1280} loading="lazy" className="h-auto w-full" />
           </div>
         </div>

@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import bg from "@/assets/barcelona-stadium.jpg";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { useBackground } from "./BackgroundContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,14 +16,23 @@ const stats = [
 export function Dynasty() {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
+  const { setActiveSection } = useBackground();
 
   useEffect(() => {
-    if (reduced || !ref.current) return;
+    if (!ref.current) return;
+
+    const st = ScrollTrigger.create({
+      trigger: ref.current,
+      start: "top 50%",
+      end: "bottom 50%",
+      onToggle: (self) => {
+        if (self.isActive) setActiveSection("dynasty");
+      },
+    });
+
+    if (reduced) return () => st.kill();
+
     const ctx = gsap.context(() => {
-      gsap.to(".dyn-bg", {
-        scale: 1.15, ease: "none",
-        scrollTrigger: { trigger: ref.current, start: "top bottom", end: "bottom top", scrub: true },
-      });
       gsap.from(".dyn-stat", {
         y: 100, opacity: 0, duration: 1, ease: "power3.out", stagger: 0.18,
         scrollTrigger: { trigger: ".dyn-stats", start: "top 75%" },
@@ -33,14 +42,15 @@ export function Dynasty() {
         scrollTrigger: { trigger: ".dyn-stats", start: "top 75%" },
       });
     }, ref);
-    return () => ctx.revert();
-  }, [reduced]);
+
+    return () => {
+      ctx.revert();
+      st.kill();
+    };
+  }, [reduced, setActiveSection]);
 
   return (
-    <section ref={ref} className="relative min-h-screen overflow-hidden bg-background">
-      <div className="dyn-bg gpu absolute inset-0 bg-cover bg-center opacity-25" style={{ backgroundImage: `url(${bg})` }} />
-      <div className="absolute inset-0 bg-gradient-to-b from-background via-background/40 to-background" />
-
+    <section ref={ref} className="relative min-h-screen overflow-hidden bg-transparent">
       <div className="relative z-10 px-6 py-32">
         <div className="mx-auto max-w-[1400px]">
           <div className="mb-8 text-xs uppercase tracking-wider-2 text-gold">Chapter 02 · b · The Peak</div>

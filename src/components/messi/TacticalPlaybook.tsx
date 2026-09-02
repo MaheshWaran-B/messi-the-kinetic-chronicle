@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { useBackground } from "./BackgroundContext";
 
 gsap.registerPlugin(ScrollTrigger, MotionPathPlugin);
 
@@ -18,9 +19,22 @@ const defenders = [
 export function TacticalPlaybook() {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
+  const { setActiveSection } = useBackground();
 
   useEffect(() => {
-    if (reduced || !ref.current) return;
+    if (!ref.current) return;
+
+    const stBg = ScrollTrigger.create({
+      trigger: ref.current,
+      start: "top 50%",
+      end: "bottom 50%",
+      onToggle: (self) => {
+        if (self.isActive) setActiveSection("tactical");
+      },
+    });
+
+    if (reduced) return () => stBg.kill();
+
     const ctx = gsap.context(() => {
       const path = ref.current!.querySelector<SVGPathElement>("#shotPath")!;
       const len = path.getTotalLength();
@@ -61,11 +75,15 @@ export function TacticalPlaybook() {
         scrollTrigger: { trigger: ref.current, start: "top 70%" },
       });
     }, ref);
-    return () => ctx.revert();
-  }, [reduced]);
+
+    return () => {
+      ctx.revert();
+      stBg.kill();
+    };
+  }, [reduced, setActiveSection]);
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-background px-6 py-32">
+    <section ref={ref} className="relative overflow-hidden bg-transparent px-6 py-32">
       <div className="mx-auto max-w-7xl">
         <div className="pb-text mb-4 text-xs uppercase tracking-wider-2 text-sky">The Tactical Playbook</div>
         <h2 className="pb-text text-display text-[clamp(2.5rem,7vw,6rem)] font-bold leading-[0.92]">
@@ -75,7 +93,7 @@ export function TacticalPlaybook() {
           Six defenders, sixty metres, eleven seconds. Scroll to retrace the run that football tried to forget — and never quite could.
         </p>
 
-        <div className="mt-16 overflow-hidden rounded-md border border-border bg-card/40 backdrop-blur-sm">
+        <div className="mt-16 overflow-hidden rounded-md border border-border bg-card/40 backdrop-blur-sm shadow-xl">
           <svg viewBox="0 0 1000 640" className="block h-auto w-full">
             <defs>
               <linearGradient id="pitch" x1="0" y1="0" x2="0" y2="1">
@@ -93,7 +111,7 @@ export function TacticalPlaybook() {
               </radialGradient>
             </defs>
 
-            <rect width="1000" height="640" fill="url(#pitch)" />
+            <rect width="1000" height="640" fill="url(#pitch)" fillOpacity="0.8" />
             {/* pitch markings */}
             <g stroke="oklch(0.5 0.05 145)" strokeOpacity="0.5" fill="none" strokeWidth="1.5">
               <rect x="20" y="20" width="960" height="600" rx="4" />

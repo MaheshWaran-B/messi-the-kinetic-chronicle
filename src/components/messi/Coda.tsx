@@ -1,6 +1,31 @@
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useBackground } from "./BackgroundContext";
+
+gsap.registerPlugin(ScrollTrigger);
+
 export function Coda() {
+  const ref = useRef<HTMLElement>(null);
+  const { setActiveSection } = useBackground();
+
+  useEffect(() => {
+    if (!ref.current) return;
+
+    const stBg = ScrollTrigger.create({
+      trigger: ref.current,
+      start: "top 50%",
+      end: "bottom 50%",
+      onToggle: (self) => {
+        if (self.isActive) setActiveSection("coda");
+      },
+    });
+
+    return () => stBg.kill();
+  }, [setActiveSection]);
+
   return (
-    <footer className="relative overflow-hidden border-t border-border bg-background px-6 py-32">
+    <footer ref={ref} className="relative overflow-hidden border-t border-border bg-transparent px-6 py-32">
       <div className="mx-auto max-w-5xl text-center">
         <div className="mb-6 text-xs uppercase tracking-wider-2 text-gold">Fin · Por ahora</div>
         <h2 className="text-display text-[clamp(3rem,9vw,8rem)] font-bold leading-[0.88]">

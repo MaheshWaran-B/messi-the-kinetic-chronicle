@@ -4,6 +4,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import paris from "@/assets/paris-psg.jpg";
 import miami from "@/assets/miami-inter.jpg";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { useBackground } from "./BackgroundContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -28,26 +29,55 @@ export function HorizontalEras() {
   const ref = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
+  const { setActiveSection } = useBackground();
 
   useEffect(() => {
-    if (reduced || !ref.current || !trackRef.current) return;
+    if (!ref.current || !trackRef.current) return;
+
+    // Trigger initial state
+    const stBg = ScrollTrigger.create({
+      trigger: ref.current,
+      start: "top 50%",
+      end: "bottom 50%",
+      onToggle: (self) => {
+        if (self.isActive) setActiveSection("paris");
+      },
+    });
+
+    if (reduced) return () => stBg.kill();
+
     const ctx = gsap.context(() => {
       const track = trackRef.current!;
       const distance = track.scrollWidth - window.innerWidth;
+      const panelWidth = window.innerWidth;
+
       gsap.to(track, {
         x: -distance, ease: "none",
         scrollTrigger: {
           trigger: ref.current, start: "top top",
           end: () => `+=${distance + window.innerHeight}`,
           scrub: 1, pin: true, invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const scrollPos = self.progress * distance;
+            const activeIdx = Math.round(scrollPos / panelWidth);
+            if (activeIdx === 0 || activeIdx === 1) {
+              setActiveSection("paris");
+            } else if (activeIdx === 2) {
+              setActiveSection("miami");
+            }
+          }
         },
       });
     }, ref);
-    return () => ctx.revert();
-  }, [reduced]);
+
+    return () => {
+      ctx.revert();
+      stBg.kill();
+    };
+  }, [reduced, setActiveSection]);
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-background">
+    <section ref={ref} className="relative overflow-hidden bg-transparent">
       <div ref={trackRef} className="flex h-screen w-max gpu">
         <div className="flex h-full w-screen items-center justify-center px-12">
           <div className="text-center">
@@ -61,7 +91,7 @@ export function HorizontalEras() {
         {panels.map((p, i) => (
           <article key={i} className="relative flex h-full w-screen items-center px-12">
             <div
-              className="absolute inset-y-12 right-12 hidden w-[45%] rounded-md bg-cover bg-center md:block"
+              className="absolute inset-y-12 right-12 hidden w-[45%] rounded-md bg-cover bg-center md:block shadow-2xl border border-border/20"
               style={{ backgroundImage: `url(${p.img})` }}
             />
             <div className="relative z-10 max-w-xl">

@@ -1,17 +1,30 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import heroImg from "@/assets/hero-silhouette.jpg";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { useBackground } from "./BackgroundContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
+  const { setActiveSection } = useBackground();
 
   useEffect(() => {
-    if (reduced || !ref.current) return;
+    if (!ref.current) return;
+
+    const st = ScrollTrigger.create({
+      trigger: ref.current,
+      start: "top 50%",
+      end: "bottom 50%",
+      onToggle: (self) => {
+        if (self.isActive) setActiveSection("hero");
+      },
+    });
+
+    if (reduced) return () => st.kill();
+
     const ctx = gsap.context(() => {
       const letters = gsap.utils.toArray<HTMLElement>(".hero-letter");
       gsap.set(letters, { y: 120, rotate: 45, opacity: 0 });
@@ -24,34 +37,22 @@ export function Hero() {
         stagger: 0.12, delay: 0.9,
       });
 
-      gsap.to(".hero-bg", {
-        yPercent: 30, scale: 1.1, ease: "none",
-        scrollTrigger: { trigger: ref.current, start: "top top", end: "bottom top", scrub: true },
-      });
       gsap.to(".hero-content", {
         yPercent: -50, opacity: 0, ease: "none",
         scrollTrigger: { trigger: ref.current, start: "top top", end: "bottom top", scrub: true },
       });
-
-      const mouse = (e: MouseEvent) => {
-        const x = (e.clientX / window.innerWidth - 0.5) * 30;
-        const y = (e.clientY / window.innerHeight - 0.5) * 30;
-        gsap.to(".hero-bg", { x, y, duration: 1.2, ease: "power2.out" });
-      };
-      window.addEventListener("mousemove", mouse);
-      return () => window.removeEventListener("mousemove", mouse);
     }, ref);
-    return () => ctx.revert();
-  }, [reduced]);
+
+    return () => {
+      ctx.revert();
+      st.kill();
+    };
+  }, [reduced, setActiveSection]);
 
   const word = "THE GOAT";
   return (
-    <section ref={ref} className="relative h-screen w-full overflow-hidden bg-background grain">
-      <div
-        className="hero-bg gpu absolute inset-[-10%] bg-cover bg-center opacity-60"
-        style={{ backgroundImage: `url(${heroImg})` }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/20 to-background" />
+    <section ref={ref} className="relative h-screen w-full overflow-hidden bg-transparent grain">
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/10 to-background/30" />
 
       <div className="hero-content relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
         <div className="mb-4 flex items-center gap-3 text-xs uppercase tracking-wider-2 text-sky">

@@ -3,6 +3,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import img from "@/assets/rosario-childhood.jpg";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { useBackground } from "./BackgroundContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -22,14 +23,23 @@ const stats = [
 export function Rosario() {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
+  const { setActiveSection } = useBackground();
 
   useEffect(() => {
-    if (reduced || !ref.current) return;
+    if (!ref.current) return;
+
+    const st = ScrollTrigger.create({
+      trigger: ref.current,
+      start: "top 50%",
+      end: "bottom 50%",
+      onToggle: (self) => {
+        if (self.isActive) setActiveSection("rosario");
+      },
+    });
+
+    if (reduced) return () => st.kill();
+
     const ctx = gsap.context(() => {
-      gsap.fromTo(".rosario-bg", { backgroundColor: "oklch(0.08 0.03 260)" }, {
-        backgroundColor: "oklch(0.97 0.015 85)", ease: "none",
-        scrollTrigger: { trigger: ref.current, start: "top 80%", end: "top 20%", scrub: true },
-      });
       gsap.to(".rosario-shutter", {
         clipPath: "inset(0% 0% 0% 0% round 0px)", ease: "power3.out",
         scrollTrigger: { trigger: ".rosario-shutter", start: "top 75%", end: "top 30%", scrub: 1 },
@@ -50,11 +60,15 @@ export function Rosario() {
         });
       });
     }, ref);
-    return () => ctx.revert();
-  }, [reduced]);
+
+    return () => {
+      ctx.revert();
+      st.kill();
+    };
+  }, [reduced, setActiveSection]);
 
   return (
-    <section ref={ref} className="rosario-bg relative min-h-screen overflow-hidden px-6 py-32 transition-colors">
+    <section ref={ref} className="relative min-h-screen overflow-hidden bg-transparent px-6 py-32">
       <div className="mx-auto max-w-7xl">
         <div className="mb-16 flex items-baseline gap-6">
           <span className="text-xs uppercase tracking-wider-2 text-ink/60">Chapter 01</span>
@@ -68,7 +82,7 @@ export function Rosario() {
               A boy<br />from <em className="text-blaugrana">Rosario.</em>
             </h2>
             <div
-              className="rosario-shutter gpu mt-10 aspect-[4/5] w-full overflow-hidden rounded-md"
+              className="rosario-shutter gpu mt-10 aspect-[4/5] w-full overflow-hidden rounded-md shadow-2xl"
               style={{ clipPath: "inset(50% 50% 50% 50% round 50%)" }}
             >
               <img src={img} alt="A child playing football on a Rosario street" width={1280} height={1600} loading="lazy" className="h-full w-full object-cover" />
@@ -77,7 +91,7 @@ export function Rosario() {
 
           <div className="rosario-cards flex flex-col gap-5 lg:pt-32">
             {cards.map((c, i) => (
-              <div key={i} className={`rosario-card border-l-2 border-ink/80 bg-ink/[0.03] p-6 ${c.side === "R" ? "lg:ml-12" : ""}`}>
+              <div key={i} className={`rosario-card border-l-2 border-ink/80 bg-ink/[0.04] p-6 backdrop-blur-sm ${c.side === "R" ? "lg:ml-12" : ""}`}>
                 <div className="mb-1 text-[10px] uppercase tracking-wider-2 text-ink/50">{c.label}</div>
                 <div className="text-display text-xl text-ink">{c.v}</div>
               </div>

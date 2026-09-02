@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { useBackground } from "./BackgroundContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -15,9 +16,22 @@ const counters = [
 export function GoatCounter() {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
+  const { setActiveSection } = useBackground();
 
   useEffect(() => {
-    if (reduced || !ref.current) return;
+    if (!ref.current) return;
+
+    const stBg = ScrollTrigger.create({
+      trigger: ref.current,
+      start: "top 50%",
+      end: "bottom 50%",
+      onToggle: (self) => {
+        if (self.isActive) setActiveSection("counters");
+      },
+    });
+
+    if (reduced) return () => stBg.kill();
+
     const ctx = gsap.context(() => {
       gsap.utils.toArray<HTMLElement>(".goat-num").forEach((el) => {
         const end = Number(el.dataset.v);
@@ -35,11 +49,15 @@ export function GoatCounter() {
         },
       });
     }, ref);
-    return () => ctx.revert();
-  }, [reduced]);
+
+    return () => {
+      ctx.revert();
+      stBg.kill();
+    };
+  }, [reduced, setActiveSection]);
 
   return (
-    <section ref={ref} className="relative border-y border-border bg-background px-6 py-32">
+    <section ref={ref} className="relative border-y border-border bg-transparent px-6 py-32">
       <div className="mx-auto max-w-7xl">
         <div className="mb-12 flex items-baseline gap-6">
           <span className="text-xs uppercase tracking-wider-2 text-gold">The GOAT Dashboard</span>

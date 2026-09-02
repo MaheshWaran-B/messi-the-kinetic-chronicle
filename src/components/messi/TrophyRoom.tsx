@@ -1,11 +1,16 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { useBackground } from "./BackgroundContext";
 import worldcup from "@/assets/trophy-worldcup.jpg";
 import ballondor from "@/assets/trophy-ballondor.jpg";
 import copa from "@/assets/trophy-copa.jpg";
 import ucl from "@/assets/trophy-ucl.jpg";
 import laliga from "@/assets/trophy-laliga.jpg";
 import olympic from "@/assets/trophy-olympic.jpg";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const trophies = [
   { t: "FIFA World Cup", y: "2022", c: "oklch(0.78 0.15 85)", img: worldcup },
@@ -20,7 +25,24 @@ export function TrophyRoom() {
   const reduced = useReducedMotion();
   const [hover, setHover] = useState<number | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const [tilt, setTilt] = useState<Record<number, { x: number; y: number }>>({});
+  const { setActiveSection, setOverrideImage } = useBackground();
+
+  useEffect(() => {
+    if (!sectionRef.current) return;
+
+    const stBg = ScrollTrigger.create({
+      trigger: sectionRef.current,
+      start: "top 50%",
+      end: "bottom 50%",
+      onToggle: (self) => {
+        if (self.isActive) setActiveSection("trophy-room");
+      },
+    });
+
+    return () => stBg.kill();
+  }, [setActiveSection]);
 
   const onMove = (i: number) => (e: React.MouseEvent) => {
     if (reduced) return;
@@ -29,10 +51,22 @@ export function TrophyRoom() {
     const y = ((e.clientY - r.top) / r.height - 0.5) * -20;
     setTilt((s) => ({ ...s, [i]: { x, y } }));
   };
-  const onLeave = (i: number) => () => setTilt((s) => ({ ...s, [i]: { x: 0, y: 0 } }));
+  const onLeave = (i: number) => () => {
+    setTilt((s) => ({ ...s, [i]: { x: 0, y: 0 } }));
+  };
+
+  const handleMouseEnter = (i: number) => {
+    setHover(i);
+    setOverrideImage(trophies[i].img);
+  };
+
+  const handleMouseLeaveAll = () => {
+    setHover(null);
+    setOverrideImage(null);
+  };
 
   return (
-    <section className="relative bg-background px-6 py-32">
+    <section ref={sectionRef} className="relative bg-transparent px-6 py-32">
       <div className="mx-auto max-w-7xl">
         <div className="mb-4 text-xs uppercase tracking-wider-2 text-sky">The Trophy Room</div>
         <h2 className="text-display text-[clamp(2.5rem,7vw,6rem)] font-bold leading-[0.92]">
@@ -42,7 +76,7 @@ export function TrophyRoom() {
         <div
           ref={wrapRef}
           className="mt-16 grid gap-6 [perspective:1400px] sm:grid-cols-2 lg:grid-cols-3"
-          onMouseLeave={() => setHover(null)}
+          onMouseLeave={handleMouseLeaveAll}
         >
           {trophies.map((tr, i) => {
             const isHovered = hover === i;
@@ -51,10 +85,10 @@ export function TrophyRoom() {
             return (
               <div
                 key={i}
-                onMouseEnter={() => setHover(i)}
+                onMouseEnter={() => handleMouseEnter(i)}
                 onMouseMove={onMove(i)}
                 onMouseLeave={onLeave(i)}
-                className="gpu relative aspect-[4/5] overflow-hidden rounded-md border border-border bg-card transition-[transform,filter] duration-500 ease-out [transform-style:preserve-3d]"
+                className="gpu relative aspect-[4/5] overflow-hidden rounded-md border border-border bg-card/40 backdrop-blur-md transition-[transform,filter] duration-500 ease-out [transform-style:preserve-3d] shadow-xl"
                 style={{
                   transform: `perspective(1200px) rotateY(${t.x}deg) rotateX(${t.y}deg) translateZ(${isHovered ? 60 : 0}px) scale(${isHovered ? 1.04 : 1})`,
                   filter: isOther ? "blur(4px) brightness(0.6)" : "none",

@@ -10,6 +10,8 @@ import { TrophyRoom } from "@/components/messi/TrophyRoom";
 import { TacticalPlaybook } from "@/components/messi/TacticalPlaybook";
 import { Coda } from "@/components/messi/Coda";
 import { ScrollProgress } from "@/components/messi/ScrollProgress";
+import { BackgroundProvider } from "@/components/messi/BackgroundContext";
+import { CinematicBackground } from "@/components/messi/CinematicBackground";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -30,18 +32,21 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <main className="relative">
-      <ScrollProgress />
-      <Hero />
-      <Rosario />
-      <BarcelonaBegins />
-      <Dynasty />
-      <Glory />
-      <GoatCounter />
-      <TrophyRoom />
-      <TacticalPlaybook />
-      <HorizontalEras />
-      <Coda />
-    </main>
+    <BackgroundProvider>
+      <main className="relative bg-transparent">
+        <CinematicBackground />
+        <ScrollProgress />
+        <Hero />
+        <Rosario />
+        <BarcelonaBegins />
+        <Dynasty />
+        <Glory />
+        <GoatCounter />
+        <TrophyRoom />
+        <TacticalPlaybook />
+        <HorizontalEras />
+        <Coda />
+      </main>
+    </BackgroundProvider>
   );
 }

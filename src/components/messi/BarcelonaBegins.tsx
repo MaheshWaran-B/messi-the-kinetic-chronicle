@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { useBackground } from "./BackgroundContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,9 +17,22 @@ const milestones = [
 export function BarcelonaBegins() {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReducedMotion();
+  const { setActiveSection } = useBackground();
 
   useEffect(() => {
-    if (reduced || !ref.current) return;
+    if (!ref.current) return;
+
+    const st = ScrollTrigger.create({
+      trigger: ref.current,
+      start: "top 50%",
+      end: "bottom 50%",
+      onToggle: (self) => {
+        if (self.isActive) setActiveSection("barcelona-begins");
+      },
+    });
+
+    if (reduced) return () => st.kill();
+
     const ctx = gsap.context(() => {
       gsap.to(".bb-left", {
         yPercent: -20, ease: "none",
@@ -33,11 +47,15 @@ export function BarcelonaBegins() {
         scrollTrigger: { trigger: ref.current, start: "top 60%", end: "bottom 60%", scrub: true },
       });
     }, ref);
-    return () => ctx.revert();
-  }, [reduced]);
+
+    return () => {
+      ctx.revert();
+      st.kill();
+    };
+  }, [reduced, setActiveSection]);
 
   return (
-    <section ref={ref} className="relative overflow-hidden bg-background px-6 py-40">
+    <section ref={ref} className="relative overflow-hidden bg-transparent px-6 py-40">
       <div className="mx-auto grid max-w-7xl gap-24 lg:grid-cols-2">
         <div className="bb-left">
           <div className="sticky top-32">
@@ -55,7 +73,7 @@ export function BarcelonaBegins() {
         </div>
         <div className="bb-right space-y-6">
           {milestones.map((m, i) => (
-            <div key={i} className="rounded-md border border-border bg-card/60 p-6 backdrop-blur-sm">
+            <div key={i} className="rounded-md border border-border bg-card/60 p-6 backdrop-blur-sm shadow-lg">
               <div className="flex items-baseline justify-between">
                 <span className="text-display text-4xl font-bold text-sky">{m.year}</span>
                 <span className="text-[10px] uppercase tracking-wider-2 text-muted-foreground">#{String(i + 1).padStart(2, "0")}</span>
