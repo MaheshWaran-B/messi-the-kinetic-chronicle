@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lionel Messi · The Retirement Park</title>
+  <meta name="description" content="A cinematic, scroll-bound tribute to Lionel Messi — from Rosario to immortality. Part of The Retirement Park, honouring football's retired greats." />
+  <meta property="og:title" content="Messi · The Retirement Park" />
+  <meta property="og:description" content="Scroll through the life, the heartbreak and the immortality of Lionel Messi." />
+  <meta name="twitter:card" content="summary" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700&family=Inter:wght@300;400;500;600&display=swap" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"Playfair Display"', 'ui-serif', 'Georgia', 'serif'],
+            sans: ['"Inter"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            background: 'oklch(0.15 0.06 255)',
+            foreground: 'oklch(0.97 0.01 90)',
+            sky: 'oklch(0.72 0.13 225)',
+            gold: 'oklch(0.78 0.15 85)',
+            silver: 'oklch(0.4 0.05 255)',
+            muted: 'oklch(0.22 0.05 255)',
+            'muted-foreground': 'oklch(0.7 0.03 230)',
+            border: 'oklch(0.35 0.06 250)',
+            card: 'oklch(0.18 0.05 255)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: #08102a;
+      color: oklch(0.97 0.01 90);
+      font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      margin: 0;
+    }
+    h1, h2, h3, h4 { font-family: "Playfair Display", ui-serif, Georgia, serif; letter-spacing: -0.02em; }
+    .text-display { font-family: "Playfair Display", ui-serif, Georgia, serif; }
+    .tracking-wider-2 { letter-spacing: 0.18em; }
+    .gpu { transform: translateZ(0); will-change: transform, opacity; backface-visibility: hidden; }
+    .grain::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.05;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
+    .glass {
+      background: rgba(20, 40, 90, 0.5);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(120, 180, 240, 0.18);
+    }
+    .gold-gradient-text {
+      background: linear-gradient(135deg, oklch(0.85 0.16 90), oklch(0.7 0.16 240));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    @keyframes kenBurns {
+      0% { transform: scale(1.05) translate(0,0); }
+      100% { transform: scale(1.12) translate(-1%, -1%); }
+    }
+    #memory-grid .memory-card { cursor: zoom-in; }
+    #memory-grid .memory-card:focus-visible { outline: 2px solid rgba(212,175,55,0.7); outline-offset: 2px; }
+    #lightbox img { background: rgba(8,16,42,0.6); }
+    @keyframes scrollPulse {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(300%); }
+    }
+    .hero-messi { animation: heroFade 1.8s ease-out both; }
+    @keyframes heroFade {
+      0% { opacity:0; transform: translateY(30px) scale(0.97); }
+      100% { opacity:1; transform: translateY(0) scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+    }
+  </style>
+
+  <script src="./src/vendor/gsap/gsap.min.js"></script>
+  <script src="./src/vendor/gsap/ScrollTrigger.min.js"></script>
+  <script src="./src/vendor/gsap/MotionPathPlugin.min.js"></script>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!--   UNIFIED CINEMATIC BACKGROUND (SAME FOR EVERY SECTION)      -->
+<!-- ============================================================ -->
+<div id="movie-bg" class="fixed inset-0 -z-10 h-screen w-screen overflow-hidden">
+  <!-- Single cinematic image, always visible -->
+  <div class="absolute inset-0 bg-cover" style="background-image:url('./src/assets/messibackground.jpg'); background-position:center top; opacity:0.5; animation: kenBurns 28s ease-in-out infinite alternate;"></div>
+  <!-- Consistent sky-blue gradient wash -->
+  <div class="absolute inset-0" style="background: radial-gradient(ellipse at 50% 20%, rgba(35,100,180,0.5) 0%, #08102a 82%);"></div>
+  <!-- Vignette for text readability -->
+  <div class="absolute inset-0" style="background: radial-gradient(circle, transparent 25%, rgba(8,16,42,0.6) 70%, #08102a 100%);"></div>
+  <!-- Sparkle particles -->
+  <canvas id="particle-canvas" class="absolute inset-0 h-full w-full opacity-70 mix-blend-screen"></canvas>
+  <!-- Film grain -->
+  <div class="grain absolute inset-0 pointer-events-none"></div>
+</div>
+
+<!-- Scroll Progress -->
+<div class="pointer-events-none fixed inset-x-0 top-0 z-50 h-[2px]" style="background:rgba(255,255,255,0.08);">
+  <div id="scroll-bar" class="h-full origin-left gold-gradient-text" style="transform:scaleX(0);"></div>
+</div>
+<div class="pointer-events-none fixed bottom-6 right-6 z-50 hidden text-[10px] uppercase tracking-widest text-white/40 md:block">
+  <span id="scroll-pct">00</span> <span>/ 100</span>
+</div>
+
+<!-- ============================================================ -->
+<!--   HERO                                                        -->
+<!-- ============================================================ -->
+<section id="hero" class="relative h-screen w-full overflow-hidden grain flex items-center justify-center">
+  <a href="./index.html" class="absolute left-6 top-6 z-40 glass rounded-full px-5 py-2.5 text-[10px] uppercase tracking-wider-2 text-white/70 hover:text-gold hover:border-gold/60 transition-colors">← The Retirement Park</a>
+  <div class="relative z-10 flex flex-col items-center justify-center px-6 text-center lg:flex-row lg:gap-16 lg:text-left">
+    <div class="flex flex-col items-center justify-center text-center lg:items-start lg:text-left">
+    <div class="mb-5 flex items-center gap-3 text-xs uppercase tracking-wider-2 text-sky">
+      <span class="h-px w-12 bg-sky/60"></span>
+      <span>1987 — Present</span>
+      <span class="h-px w-12 bg-sky/60"></span>
+    </div>
+    <h1 class="text-display flex flex-wrap justify-center font-black leading-none text-white lg:justify-start" style="font-size:clamp(3rem,14vw,14rem); text-shadow:0 10px 60px rgba(0,0,0,0.6);">
+      <span class="hero-letter gpu inline-block">L</span>
+      <span class="hero-letter gpu inline-block">I</span>
+      <span class="hero-letter gpu inline-block">O</span>
+      <span class="hero-letter gpu inline-block">N</span>
+      <span class="hero-letter gpu inline-block">E</span>
+      <span class="hero-letter gpu inline-block">L</span>
+    </h1>
+    <div class="-mt-3 mb-4 flex items-center gap-4 text-sm uppercase tracking-[0.3em] text-gold">
+      <span class="h-px w-10 bg-gold/50"></span>M E S S I<span class="h-px w-10 bg-gold/50"></span>
+    </div>
+    <p class="hero-sub mt-2 max-w-2xl text-balance text-base uppercase tracking-wider-2 text-white/70 sm:text-lg">
+      <span class="block">The Retirement Park</span>
+      <span class="block mt-1 text-sm normal-case tracking-normal text-white/50">In memory and honour of the game's greatest — Lionel Andrés Messi.</span>
+      <span class="block mt-2 text-sm normal-case tracking-normal text-white/40">From the streets of Rosario to the summit of world football — one GOAT, honoured forever.</span>
+    </p>
+    </div>
+    <div class="relative mt-10 lg:mt-0 lg:shrink-0 reveal">
+      <img src="./src/assets/messii.jpg" alt="Lionel Messi" class="hero-messi h-[46vh] w-auto rounded-none object-cover lg:h-[72vh]" style="mask-image:linear-gradient(to bottom, black 60%, transparent); -webkit-mask-image:linear-gradient(to bottom, black 60%, transparent); box-shadow:0 25px 60px rgba(0,0,0,0.55);" />
+    </div>
+  </div>
+  <div class="absolute bottom-10 left-1/2 z-10 -translate-x-1/2">
+    <div class="flex flex-col items-center gap-2 text-[10px] uppercase tracking-wider-2 text-white/40">
+      <span>Begin the journey</span>
+      <div class="relative h-12 w-px overflow-hidden bg-white/15">
+        <div class="absolute inset-x-0 top-0 h-4 bg-gold" style="animation:scrollPulse 1.6s ease-in-out infinite;"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   PURPOSE / WHY THIS EXISTS                                   -->
+<!-- ============================================================ -->
+<section id="purpose" class="relative px-6 py-28">
+  <div class="mx-auto max-w-4xl text-center">
+    <div class="reveal mb-4 text-xs uppercase tracking-wider-2 text-sky">Prologue</div>
+    <h2 class="reveal text-display font-bold" style="font-size:clamp(2.2rem,5vw,4rem); line-height:1.05;">
+      More than a player.<br />A <span class="gold-gradient-text">chapter in human history.</span>
+    </h2>
+    <div class="reveal mx-auto mt-8 max-w-2xl space-y-4 text-base leading-relaxed text-white/60">
+      <p>For over two decades, Lionel Messi has been the quiet gravity around which the entire sport of football orbits. This chronicle is not a list of trophies — it is the story of what it took to earn them: the injections, the exile, the loneliness, the heartbreak, and finally, the redemption.</p>
+      <p>Scroll slowly. Every act below is a different chapter of the same impossible journey.</p>
+    </div>
+    <div class="reveal mt-10 flex flex-wrap items-center justify-center gap-3">
+      <a href="#rosario" class="glass rounded-full px-6 py-3 text-xs uppercase tracking-wider-2 text-white/80 hover:border-gold/60 hover:text-gold transition-colors">Begin · Act I — Rosario</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   ACT I · ROSARIO                                             -->
+<!-- ============================================================ -->
+<section id="rosario" class="relative px-6 py-28">
+  <div class="mx-auto max-w-7xl">
+    <div class="mb-14 flex items-center gap-6">
+      <span class="text-xs uppercase tracking-wider-2 text-gold">Act I</span>
+      <span class="h-px flex-1 bg-white/10"></span>
+      <span class="text-xs uppercase tracking-wider-2 text-white/40">Rosario · 1987–2000</span>
+    </div>
+    <div class="grid items-center gap-14 lg:grid-cols-2">
+      <div>
+        <h2 class="reveal text-display font-bold leading-none text-white" style="font-size:clamp(2.6rem,6vw,5.5rem);">
+          A boy from<br /><span class="gold-gradient-text">Rosario.</span>
+        </h2>
+        <p class="reveal mt-6 max-w-md text-base leading-relaxed text-white/60">
+          Argentina in the 1990s was in economic collapse. In the small city of Rosario, a skinny kid with a left foot and a broken heart played barefoot on packed-earth streets — because that was all his family could afford. His only way out was the ball.
+        </p>
+        <div class="reveal mt-8 overflow-hidden rounded-md shadow-2xl border border-white/10">
+          <img src="./src/assets/rosario-childhood.jpg" alt="A child playing football on a Rosario street" loading="lazy" class="h-auto w-full object-cover" />
+        </div>
+      </div>
+      <div class="rosario-cards flex flex-col gap-4">
+        <div class="rosario-card glass rounded-md p-6">
+          <div class="mb-1 text-[10px] uppercase tracking-wider-2 text-gold">Born</div>
+          <div class="text-display text-xl text-white">Rosario, Argentina · 24 June 1987</div>
+        </div>
+        <div class="rosario-card glass rounded-md p-6 lg:ml-8">
+          <div class="mb-1 text-[10px] uppercase tracking-wider-2 text-gold">First Club</div>
+          <div class="text-display text-xl text-white">Grandoli — age 5, coached by his father</div>
+        </div>
+        <div class="rosario-card glass rounded-md p-6">
+          <div class="mb-1 text-[10px] uppercase tracking-wider-2 text-gold">Newell's Old Boys</div>
+          <div class="text-display text-xl text-white">Joined 1995. Scored nearly 500 goals as a kid.</div>
+        </div>
+        <div class="rosario-card glass rounded-md p-6 lg:ml-8">
+          <div class="mb-1 text-[10px] uppercase tracking-wider-2 text-gold">The Diagnosis</div>
+          <div class="text-display text-xl text-white">Growth hormone deficiency at 10. Treatment: $900/month — unaffordable.</div>
+        </div>
+        <div class="rosario-card glass rounded-md p-6">
+          <div class="mb-1 text-[10px] uppercase tracking-wider-2 text-gold">The Decision</div>
+          <div class="text-display text-xl text-white">At 13, to survive, he leaves his mother and his homeland for Barcelona.</div>
+        </div>
+      </div>
+    </div>
+    <div class="mt-20 grid gap-8 sm:grid-cols-3">
+      <div class="reveal border-t border-gold/30 pt-6">
+        <div class="text-display font-bold text-white text-6xl"><span class="counter" data-v="500">00</span>+</div>
+        <div class="mt-2 text-xs uppercase tracking-wider-2 text-white/50">Goals as a child</div>
+      </div>
+      <div class="reveal border-t border-gold/30 pt-6">
+        <div class="text-display font-bold text-white text-6xl"><span class="counter" data-v="13">00</span></div>
+        <div class="mt-2 text-xs uppercase tracking-wider-2 text-white/50">Age signed by Barça</div>
+      </div>
+      <div class="reveal border-t border-gold/30 pt-6">
+        <div class="text-display font-bold text-white text-6xl"><span class="counter" data-v="1">00</span></div>
+        <div class="mt-2 text-xs uppercase tracking-wider-2 text-white/50">Napkin contract</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   ACT II · LA MASIA & BARCELONA                               -->
+<!-- ============================================================ -->
+<section id="barcelona" class="relative px-6 py-28">
+  <div class="mx-auto max-w-7xl">
+    <div class="mb-14 flex items-center gap-6">
+      <span class="text-xs uppercase tracking-wider-2 text-sky">Act II</span>
+      <span class="h-px flex-1 bg-white/10"></span>
+      <span class="text-xs uppercase tracking-wider-2 text-white/40">La Masia · 2000–2012</span>
+    </div>
+    <div class="grid items-start gap-14 lg:grid-cols-2">
+      <div class="sticky top-24">
+        <h2 class="bb-title reveal text-display font-bold leading-none text-white" style="font-size:clamp(2.6rem,6vw,5.5rem);">
+          Signed on a<br /><span class="gold-gradient-text">napkin.</span>
+        </h2>
+        <p class="reveal mt-6 max-w-md text-base leading-relaxed text-white/60">
+          December 14, 2000. A 13-year-old, ill from missed hormone treatments, walks into Barcelona's offices. Carles Rexach has no contract paper. He grabs a napkin and writes the future of football onto it. That single piece of paper would become the most valuable in the sport.
+        </p>
+        <blockquote class="reveal mt-8 border-l-2 border-gold pl-5 text-lg italic text-white/80">
+          "I, Carles Rexach, in my capacity as technical secretary of FCB, commit to sign Lionel Messi…"
+        </blockquote>
+      </div>
+      <div class="bb-right space-y-5">
+        <div class="glass rounded-md p-6 reveal">
+          <div class="flex items-baseline justify-between">
+            <span class="text-display text-4xl font-bold text-gold">2000</span>
+            <span class="text-[10px] uppercase tracking-wider-2 text-white/40">#01</span>
+          </div>
+          <h3 class="mt-3 text-display text-xl text-white">The Napkin</h3>
+          <p class="mt-2 text-sm text-white/55">Rexach signs Messi on a paper napkin at a Barcelona restaurant — the only "contract" available.</p>
+        </div>
+        <div class="glass rounded-md p-6 reveal">
+          <div class="flex items-baseline justify-between">
+            <span class="text-display text-4xl font-bold text-gold">2001</span>
+            <span class="text-[10px] uppercase tracking-wider-2 text-white/40">#02</span>
+          </div>
+          <h3 class="mt-3 text-display text-xl text-white">Crossing the Atlantic</h3>
+          <p class="mt-2 text-sm text-white/55">The Messi family relocates to Spain. La Masia — Barcelona's famed academy — opens its doors.</p>
+        </div>
+        <div class="glass rounded-md p-6 reveal">
+          <div class="flex items-baseline justify-between">
+            <span class="text-display text-4xl font-bold text-gold">2003</span>
+            <span class="text-[10px] uppercase tracking-wider-2 text-white/40">#03</span>
+          </div>
+          <h3 class="mt-3 text-display text-xl text-white">Debut</h3>
+          <p class="mt-2 text-sm text-white/55">First-team friendly debut vs Porto, aged 16. The world had no idea what was coming.</p>
+        </div>
+        <div class="glass rounded-md p-6 reveal">
+          <div class="flex items-baseline justify-between">
+            <span class="text-display text-4xl font-bold text-gold">2004</span>
+            <span class="text-[10px] uppercase tracking-wider-2 text-white/40">#04</span>
+          </div>
+          <h3 class="mt-3 text-display text-xl text-white">La Liga</h3>
+          <p class="mt-2 text-sm text-white/55">Official La Liga debut vs Espanyol — youngest Barcelona player in history.</p>
+        </div>
+        <div class="glass rounded-md p-6 reveal">
+          <div class="flex items-baseline justify-between">
+            <span class="text-display text-4xl font-bold text-gold">2005</span>
+            <span class="text-[10px] uppercase tracking-wider-2 text-white/40">#05</span>
+          </div>
+          <h3 class="mt-3 text-display text-xl text-white">First Goal</h3>
+          <p class="mt-2 text-sm text-white/55">A 17-year-old Messi, loaned a goal by Ronaldinho, chips the keeper — the prophecy begins.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   ACT III · THE DYNASTY AT CAMP NOU                           -->
+<!-- ============================================================ -->
+<section id="dynasty" class="relative px-6 py-28">
+  <div class="mx-auto max-w-[1400px]">
+    <div class="mb-14 flex items-center gap-6">
+      <span class="text-xs uppercase tracking-wider-2 text-gold">Act III</span>
+      <span class="h-px flex-1 bg-white/10"></span>
+      <span class="text-xs uppercase tracking-wider-2 text-white/40">The Peak · 2008–2019</span>
+    </div>
+    <div class="text-center">
+      <span class="reveal text-xs uppercase tracking-wider-2 text-white/40">Seventeen seasons. Two decades of impossibility made routine.</span>
+      <h2 class="reveal text-display font-black leading-none text-white mt-2" style="font-size:clamp(3rem,10vw,10rem); text-shadow:0 8px 50px rgba(0,0,0,0.5);">
+        The <span class="gold-gradient-text">Dynasty.</span>
+      </h2>
+      <p class="reveal mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/55">
+        Barcelona under Pep Guardiola and Messi didn't win matches — it rewrote the sport's grammar. A quiet boy, surrounded by football's greatest, became its most decorated player in club history.
+      </p>
+    </div>
+    <div class="dyn-stats mt-20 grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="dyn-stat text-center reveal">
+        <div class="text-display font-bold leading-none text-white text-7xl">672</div>
+        <div class="mt-3 text-xs uppercase tracking-wider-2 text-white/50">Barça Goals</div>
+      </div>
+      <div class="dyn-stat text-center reveal">
+        <div class="text-display font-bold leading-none text-white text-7xl">10</div>
+        <div class="mt-3 text-xs uppercase tracking-wider-2 text-white/50">La Liga Titles</div>
+      </div>
+      <div class="dyn-stat text-center reveal">
+        <div class="text-display font-bold leading-none text-white text-7xl">04</div>
+        <div class="mt-3 text-xs uppercase tracking-wider-2 text-white/50">Champions League</div>
+      </div>
+      <div class="dyn-stat text-center reveal">
+        <div class="text-display font-bold leading-none text-white text-7xl">07</div>
+        <div class="mt-3 text-xs uppercase tracking-wider-2 text-white/50">Ballons d'Or (at Barça)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   ACT IV · THE ALBICELESTE JOURNEY (ARGENTINA)                -->
+<!-- ============================================================ -->
+<section id="glory" class="glory-wrap relative px-6 py-28">
+  <canvas id="confetti-canvas" class="pointer-events-none absolute inset-0 z-20 h-full w-full"></canvas>
+  <div class="relative z-10 mx-auto max-w-7xl">
+    <div class="mb-14 flex items-center gap-6">
+      <span class="text-xs uppercase tracking-wider-2 text-sky">Act IV</span>
+      <span class="h-px flex-1 bg-white/10"></span>
+      <span class="text-xs uppercase tracking-wider-2 text-white/40">Albiceleste · 2005–2022</span>
+    </div>
+    <div class="grid items-start gap-14 lg:grid-cols-[1fr_1.1fr]">
+      <div>
+        <h2 class="reveal text-display font-bold leading-none text-white" style="font-size:clamp(2.6rem,6vw,5.5rem);">
+          From tears<br />to <span class="gold-gradient-text">gold.</span>
+        </h2>
+        <p class="reveal mt-6 max-w-md text-base leading-relaxed text-white/60">
+          For Argentina, Messi's genius came wrapped in heartbreak. Four finals, four defeats, and a nation that nearly lost its greatest son. The redemption arc would take 16 years — and end in immortality.
+        </p>
+        <div class="glory-img reveal gpu mt-8 overflow-hidden rounded-md shadow-2xl border border-white/10" style="transform-style:preserve-3d;">
+          <img src="./src/assets/world-cup-glory.jpg" alt="A golden trophy lifted to the sky" loading="lazy" class="h-auto w-full" />
+        </div>
+      </div>
+      <div class="glory-arc space-y-6">
+        <div class="glory-row flex gap-6 border-t border-white/10 pt-6 reveal">
+          <div class="text-display w-24 shrink-0 text-2xl text-gold">2014</div>
+          <div>
+            <h3 class="text-display text-xl text-white">Maracanã</h3>
+            <p class="mt-1 text-sm text-white/55">Lost the World Cup final to Germany. Awarded the Golden Ball through tears.</p>
+          </div>
+        </div>
+        <div class="glory-row flex gap-6 border-t border-white/10 pt-6 reveal">
+          <div class="text-display w-24 shrink-0 text-2xl text-gold">2016</div>
+          <div>
+            <h3 class="text-display text-xl text-white">The Breaking Point</h3>
+            <p class="mt-1 text-sm text-white/55">Two Copa América final defeats, then retirement at 29 — reversed within weeks.</p>
+          </div>
+        </div>
+        <div class="glory-row flex gap-6 border-t border-white/10 pt-6 reveal">
+          <div class="text-display w-24 shrink-0 text-2xl text-gold">2021</div>
+          <div>
+            <h3 class="text-display text-xl text-white">Maracanã Reborn</h3>
+            <p class="mt-1 text-sm text-white/55">First major Argentina trophy in 28 years — Copa América, won at Brazil's home.</p>
+          </div>
+        </div>
+        <div class="glory-row flex gap-6 border-t border-white/10 pt-6 reveal">
+          <div class="text-display w-24 shrink-0 text-2xl text-gold">2022</div>
+          <div>
+            <h3 class="text-display text-xl text-white">Lusail</h3>
+            <p class="mt-1 text-sm text-white/55">World Cup. Argentina. Immortality. The story the whole planet wept to watch.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   GOAT DASHBOARD                                              -->
+<!-- ============================================================ -->
+<section id="counters" class="relative px-6 py-28 border-y border-white/10">
+  <div class="mx-auto max-w-7xl">
+    <div class="mb-14 flex items-baseline gap-6">
+      <span class="text-xs uppercase tracking-wider-2 text-gold">The GOAT Dashboard</span>
+      <span class="h-px flex-1 bg-white/10"></span>
+      <span class="text-xs uppercase tracking-wider-2 text-white/40">Career totals</span>
+    </div>
+    <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="border-l border-gold/40 pl-5 reveal">
+        <div class="text-display font-bold leading-none text-white" style="font-size:clamp(3rem,6vw,5.5rem);"><span class="goat-num gold-gradient-text" data-v="872">0</span><span class="text-gold">+</span></div>
+        <div class="mt-3 text-xs uppercase tracking-wider-2 text-white/50">Career goals</div>
+      </div>
+      <div class="border-l border-gold/40 pl-5 reveal">
+        <div class="text-display font-bold leading-none text-white" style="font-size:clamp(3rem,6vw,5.5rem);"><span class="goat-num gold-gradient-text" data-v="384">0</span><span class="text-gold">+</span></div>
+        <div class="mt-3 text-xs uppercase tracking-wider-2 text-white/50">Career assists</div>
+      </div>
+      <div class="border-l border-gold/40 pl-5 reveal">
+        <div class="text-display font-bold leading-none text-white" style="font-size:clamp(3rem,6vw,5.5rem);"><span class="goat-num gold-gradient-text" data-v="45">0</span><span class="text-gold">+</span></div>
+        <div class="mt-3 text-xs uppercase tracking-wider-2 text-white/50">Trophies</div>
+      </div>
+      <div class="border-l border-gold/40 pl-5 reveal">
+        <div class="text-display font-bold leading-none text-white" style="font-size:clamp(3rem,6vw,5.5rem);"><span class="goat-num gold-gradient-text" data-v="8">0</span><span class="text-gold">+</span></div>
+        <div class="mt-3 text-xs uppercase tracking-wider-2 text-white/50">Ballons d'Or</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   RECORDS & MILESTONES                                        -->
+<!-- ============================================================ -->
+<section id="records" class="relative px-6 py-28">
+  <div class="mx-auto max-w-7xl">
+    <div class="mb-4 text-xs uppercase tracking-wider-2 text-gold reveal">Records & Milestones</div>
+    <h2 class="reveal text-display font-bold text-white" style="font-size:clamp(2.4rem,5.5vw,5rem); line-height:0.95;">The record books <span class="gold-gradient-text">have his name in ink.</span></h2>
+    <p class="reveal mt-5 max-w-2xl text-base leading-relaxed text-white/60">
+      Not the trophies he won — the numbers that will outlive them. When football is myth, these are the entries nobody scrubs from the ledger.
+    </p>
+    <div id="record-grid" class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="record-card glass rounded-md p-6 reveal">
+        <div class="text-display text-4xl font-bold gold-gradient-text">872</div>
+        <h3 class="mt-3 text-display text-lg text-white">Career Goals</h3>
+        <p class="mt-2 text-sm text-white/55">The all-time record for a professional footballer, verified across clubs and country.</p>
+      </div>
+      <div class="record-card glass rounded-md p-6 reveal">
+        <div class="text-display text-4xl font-bold gold-gradient-text">8</div>
+        <h3 class="mt-3 text-display text-lg text-white">Ballons d'Or</h3>
+        <p class="mt-2 text-sm text-white/55">Twelve nominations, eight wins. No one in history holds more than five.</p>
+      </div>
+      <div class="record-card glass rounded-md p-6 reveal">
+        <div class="text-display text-4xl font-bold gold-gradient-text">672</div>
+        <h3 class="mt-3 text-display text-lg text-white">Barça Goals</h3>
+        <p class="mt-2 text-sm text-white/55">More goals for a single club than anyone has ever managed — anywhere.</p>
+      </div>
+      <div class="record-card glass rounded-md p-6 reveal">
+        <div class="text-display text-4xl font-bold gold-gradient-text">103</div>
+        <h3 class="mt-3 text-display text-lg text-white">Record Pick</h3>
+        <p class="mt-2 text-sm text-white/55">Six World Cup Golden Balls and the record for most goals in the World Cup's knockout rounds.</p>
+      </div>
+      <div class="record-card glass rounded-md p-6 reveal">
+        <div class="text-display text-4xl font-bold gold-gradient-text">17</div>
+        <h3 class="mt-3 text-display text-lg text-white">UCL Seasons</h3>
+        <p class="mt-2 text-sm text-white/55">Top scorer in Champions League history for Barcelona with 120 goals.</p>
+      </div>
+      <div class="record-card glass rounded-md p-6 reveal">
+        <div class="text-display text-4xl font-bold gold-gradient-text">1</div>
+        <h3 class="mt-3 text-display text-lg text-white">91 Goals in 2012</h3>
+        <p class="mt-2 text-sm text-white/55">The calendar-year record. Sixty of them for Barça, in a single outrageous season.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   VOICES / QUOTES                                             -->
+<!-- ============================================================ -->
+<section id="quotes" class="relative px-6 py-28 border-y border-white/10">
+  <div class="mx-auto max-w-6xl">
+    <div class="mb-4 text-xs uppercase tracking-wider-2 text-sky reveal">Voices</div>
+    <h2 class="reveal text-display font-bold text-white" style="font-size:clamp(2.4rem,5.5vw,5rem); line-height:0.95;">Heard around the <span class="gold-gradient-text">world.</span></h2>
+    <div class="mt-14 grid gap-8 md:grid-cols-2">
+      <figure class="quote-card glass rounded-md border-l-2 border-gold p-8 reveal">
+        <blockquote class="text-lg italic leading-relaxed text-white/75">"Every now and then a player comes along who is simply on a different level. Messi is on a planet of his own."</blockquote>
+        <figcaption class="mt-4 text-xs uppercase tracking-wider-2 text-gold">Sir Alex Ferguson</figcaption>
+      </figure>
+      <figure class="quote-card glass rounded-md border-l-2 border-sky p-8 reveal">
+        <blockquote class="text-lg italic leading-relaxed text-white/75">"I have seen the best player in history. It's Messi. There's no question."</blockquote>
+        <figcaption class="mt-4 text-xs uppercase tracking-wider-2 text-sky">Diego Maradona</figcaption>
+      </figure>
+      <figure class="quote-card glass rounded-md border-l-2 border-gold p-8 reveal">
+        <blockquote class="text-lg italic leading-relaxed text-white/75">"For me he's the best. He's one of those players that play a different sport than the rest."</blockquote>
+        <figcaption class="mt-4 text-xs uppercase tracking-wider-2 text-gold">Pep Guardiola</figcaption>
+      </figure>
+      <figure class="quote-card glass rounded-md border-l-2 border-sky p-8 reveal">
+        <blockquote class="text-lg italic leading-relaxed text-white/75">"It's impossible to stop him unless you kill him."</blockquote>
+        <figcaption class="mt-4 text-xs uppercase tracking-wider-2 text-sky">Arsène Wenger</figcaption>
+      </figure>
+      <figure class="quote-card glass rounded-md border-l-2 border-gold p-8 md:col-span-2 reveal">
+        <blockquote class="mx-auto max-w-3xl text-center text-lg italic leading-relaxed text-white/75">"I don't need the best hairstyle or the best body. Give me the ball and I'll show you the best."</blockquote>
+        <figcaption class="mt-4 text-center text-xs uppercase tracking-wider-2 text-gold">Lionel Messi</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   TROPHY ROOM                                                 -->
+<!-- ============================================================ -->
+<section id="trophy-room" class="relative px-6 py-28">
+  <div class="mx-auto max-w-7xl">
+    <div class="mb-4 text-xs uppercase tracking-wider-2 text-sky reveal">The Trophy Room</div>
+    <h2 class="reveal text-display font-bold text-white" style="font-size:clamp(2.4rem,5.5vw,5rem); line-height:0.95;">A cabinet that <span class="gold-gradient-text">never closes.</span></h2>
+    <div id="trophy-grid" class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" style="perspective:1400px;">
+      <div class="trophy-card gpu group relative aspect-[4/5] overflow-hidden rounded-md border border-white/10 shadow-xl reveal" style="transition:transform 0.5s ease-out, filter 0.5s ease-out;">
+        <img src="./src/assets/trophy-worldcup.jpg" alt="Lionel Messi with the FIFA World Cup trophy" loading="lazy" class="absolute inset-0 h-full w-full object-cover" />
+        <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(5,6,13,0.95), rgba(5,6,13,0.4) 45%, transparent);"></div>
+        <div class="relative flex h-full flex-col justify-between p-7">
+          <div class="text-[10px] uppercase tracking-wider-2 text-white/50">#01</div>
+          <div>
+            <div class="text-display text-2xl leading-tight text-white">FIFA World Cup</div>
+            <div class="text-display mt-1 text-5xl font-bold text-gold">2022</div>
+            <p class="mt-3 text-xs text-white/55 hidden group-hover:block">The one that completed him — Qatar, 2022.</p>
+          </div>
+        </div>
+      </div>
+      <div class="trophy-card gpu group relative aspect-[4/5] overflow-hidden rounded-md border border-white/10 shadow-xl reveal" style="transition:transform 0.5s ease-out, filter 0.5s ease-out;">
+        <img src="./src/assets/messi ballandor.webp" alt="Lionel Messi with the Ballon d'Or trophy" loading="lazy" class="absolute inset-0 h-full w-full object-cover" />
+        <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(5,6,13,0.95), rgba(5,6,13,0.4) 45%, transparent);"></div>
+        <div class="relative flex h-full flex-col justify-between p-7">
+          <div class="text-[10px] uppercase tracking-wider-2 text-white/50">#02</div>
+          <div>
+            <div class="text-display text-2xl leading-tight text-white">Ballon d'Or</div>
+            <div class="text-display mt-1 text-5xl font-bold" style="color:oklch(0.85 0.16 80);">×8</div>
+            <p class="mt-3 text-xs text-white/55 hidden group-hover:block">Eight — no one else has more than five.</p>
+          </div>
+        </div>
+      </div>
+      <div class="trophy-card gpu group relative aspect-[4/5] overflow-hidden rounded-md border border-white/10 shadow-xl reveal" style="transition:transform 0.5s ease-out, filter 0.5s ease-out;">
+        <img src="./src/assets/copa america.jpg" alt="Lionel Messi with the Copa América trophy" loading="lazy" class="absolute inset-0 h-full w-full object-cover" />
+        <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(5,6,13,0.95), rgba(5,6,13,0.4) 45%, transparent);"></div>
+        <div class="relative flex h-full flex-col justify-between p-7">
+          <div class="text-[10px] uppercase tracking-wider-2 text-white/50">#03</div>
+          <div>
+            <div class="text-display text-2xl leading-tight text-white">Copa América</div>
+            <div class="text-display mt-1 text-5xl font-bold text-sky">2021 · 24</div>
+            <p class="mt-3 text-xs text-white/55 hidden group-hover:block">Two titles — the redemption of a nation.</p>
+          </div>
+        </div>
+      </div>
+      <div class="trophy-card gpu group relative aspect-[4/5] overflow-hidden rounded-md border border-white/10 shadow-xl reveal" style="transition:transform 0.5s ease-out, filter 0.5s ease-out;">
+        <img src="./src/assets/ucl.jpg" alt="Lionel Messi with the Champions League trophy" loading="lazy" class="absolute inset-0 h-full w-full object-cover" />
+        <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(5,6,13,0.95), rgba(5,6,13,0.4) 45%, transparent);"></div>
+        <div class="relative flex h-full flex-col justify-between p-7">
+          <div class="text-[10px] uppercase tracking-wider-2 text-white/50">#04</div>
+          <div>
+            <div class="text-display text-2xl leading-tight text-white">Champions League</div>
+            <div class="text-display mt-1 text-5xl font-bold" style="color:oklch(0.6 0.18 250);">×4</div>
+            <p class="mt-3 text-xs text-white/55 hidden group-hover:block">Europe conquered, again and again.</p>
+          </div>
+        </div>
+      </div>
+      <div class="trophy-card gpu group relative aspect-[4/5] overflow-hidden rounded-md border border-white/10 shadow-xl reveal" style="transition:transform 0.5s ease-out, filter 0.5s ease-out;">
+        <img src="./src/assets/trophy-laliga.jpg" alt="Lionel Messi with the La Liga trophy" loading="lazy" class="absolute inset-0 h-full w-full object-cover" />
+        <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(5,6,13,0.95), rgba(5,6,13,0.4) 45%, transparent);"></div>
+        <div class="relative flex h-full flex-col justify-between p-7">
+          <div class="text-[10px] uppercase tracking-wider-2 text-white/50">#05</div>
+          <div>
+            <div class="text-display text-2xl leading-tight text-white">La Liga</div>
+            <div class="text-display mt-1 text-5xl font-bold" style="color:oklch(0.6 0.2 45);">×10</div>
+            <p class="mt-3 text-xs text-white/55 hidden group-hover:block">A decade of Spanish domination.</p>
+          </div>
+        </div>
+      </div>
+      <div class="trophy-card gpu group relative aspect-[4/5] overflow-hidden rounded-md border border-white/10 shadow-xl reveal" style="transition:transform 0.5s ease-out, filter 0.5s ease-out;">
+        <img src="./src/assets/trophy-olympic.jpg" alt="Lionel Messi with the Olympic Gold medal" loading="lazy" class="absolute inset-0 h-full w-full object-cover" />
+        <div class="absolute inset-0" style="background:linear-gradient(to top, rgba(5,6,13,0.95), rgba(5,6,13,0.4) 45%, transparent);"></div>
+        <div class="relative flex h-full flex-col justify-between p-7">
+          <div class="text-[10px] uppercase tracking-wider-2 text-white/50">#06</div>
+          <div>
+            <div class="text-display text-2xl leading-tight text-white">Olympic Gold</div>
+            <div class="text-display mt-1 text-5xl font-bold text-gold">2008</div>
+            <p class="mt-3 text-xs text-white/55 hidden group-hover:block">Beijing 2008 — young Messi, all-conquering.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   THE TACTICAL PLAYBOOK — GETAFE 2007                         -->
+<!-- ============================================================ -->
+<section id="tactical" class="relative px-6 py-28">
+  <div class="mx-auto max-w-5xl text-center">
+    <div class="reveal mb-4 text-xs uppercase tracking-wider-2 text-sky">The Tactical Playbook</div>
+    <h2 class="reveal text-display font-bold text-white" style="font-size:clamp(2.4rem,5.5vw,5rem); line-height:0.95;">Goal 644. <span class="gold-gradient-text">Getafe, 2007.</span></h2>
+    <p class="reveal mx-auto mt-5 max-w-2xl text-base leading-relaxed text-white/60">
+      Six defenders, sixty metres, eleven seconds. The greatest solo goal in football history — a run Messi would never speak about. Follow the ball and scroll to retrace the run that football tried to forget… and never could.
+    </p>
+    <div class="reveal mt-12 overflow-hidden rounded-md border border-white/10 shadow-xl glass">
+      <svg viewBox="0 0 1000 640" class="block h-auto w-full">
+        <defs>
+          <linearGradient id="pitch" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#0d2a1a" />
+            <stop offset="1" stop-color="#06180e" />
+          </linearGradient>
+          <linearGradient id="trail" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0" stop-color="oklch(0.7 0.16 240)" stop-opacity="0.3" />
+            <stop offset="1" stop-color="oklch(0.85 0.16 90)" />
+          </linearGradient>
+          <radialGradient id="glow">
+            <stop offset="0" stop-color="oklch(0.78 0.15 85)" stop-opacity="0.9" />
+            <stop offset="1" stop-color="oklch(0.78 0.15 85)" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <rect width="1000" height="640" fill="url(#pitch)" fill-opacity="0.9" />
+        <g stroke="rgba(255,255,255,0.15)" fill="none" stroke-width="1.5">
+          <rect x="20" y="20" width="960" height="600" rx="4" />
+          <line x1="500" y1="20" x2="500" y2="620" />
+          <circle cx="500" cy="320" r="70" />
+          <rect x="20" y="180" width="120" height="280" />
+          <rect x="860" y="180" width="120" height="280" />
+        </g>
+        <g id="d1" transform="translate(260,460)"><circle r="10" fill="oklch(0.55 0.18 25)"/><circle r="14" fill="none" stroke="oklch(0.55 0.18 25)" stroke-opacity="0.4"/></g>
+        <g id="d2" transform="translate(380,320)"><circle r="10" fill="oklch(0.55 0.18 25)"/><circle r="14" fill="none" stroke="oklch(0.55 0.18 25)" stroke-opacity="0.4"/></g>
+        <g id="d3" transform="translate(540,200)"><circle r="10" fill="oklch(0.55 0.18 25)"/><circle r="14" fill="none" stroke="oklch(0.55 0.18 25)" stroke-opacity="0.4"/></g>
+        <g id="d4" transform="translate(720,240)"><circle r="10" fill="oklch(0.55 0.18 25)"/><circle r="14" fill="none" stroke="oklch(0.55 0.18 25)" stroke-opacity="0.4"/></g>
+        <path d="M120,560 C180,520 240,480 280,440 C320,400 340,360 360,300 C380,240 420,200 480,180 C540,160 600,160 660,180 C720,200 760,230 800,260 C840,290 870,310 900,300" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1.5" stroke-dasharray="4 6" />
+        <path id="shotPath" d="M120,560 C180,520 240,480 280,440 C320,400 340,360 360,300 C380,240 420,200 480,180 C540,160 600,160 660,180 C720,200 760,230 800,260 C840,290 870,310 900,300" fill="none" stroke="url(#trail)" stroke-width="4" stroke-linecap="round" />
+        <circle id="ballGlow" cx="0" cy="0" r="30" fill="url(#glow)" />
+        <circle id="ball" cx="0" cy="0" r="9" fill="oklch(0.97 0.01 90)" stroke="oklch(0.08 0.03 260)" stroke-width="1.5" />
+        <g transform="translate(900,300)"><circle r="18" fill="none" stroke="oklch(0.78 0.15 85)" stroke-width="2"/><circle r="6" fill="oklch(0.78 0.15 85)"/></g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   THE FINAL CHAPTERS · PARIS & MIAMI                          -->
+<!-- ============================================================ -->
+<section id="eras" class="relative px-6 py-28">
+  <div class="mx-auto max-w-7xl">
+    <div class="mb-14 flex items-center gap-6">
+      <span class="text-xs uppercase tracking-wider-2 text-sky">Act V</span>
+      <span class="h-px flex-1 bg-white/10"></span>
+      <span class="text-xs uppercase tracking-wider-2 text-white/40">The Final Chapters · 2021–</span>
+    </div>
+    <div class="grid gap-12 md:grid-cols-2">
+      <article class="glass rounded-xl overflow-hidden reveal">
+        <div class="relative h-72 bg-cover bg-center" style="background-image:url('./src/assets/paris-psg.jpg');"></div>
+        <div class="p-8">
+          <div class="mb-2 text-xs uppercase tracking-wider-2 text-white/40">Chapter 04 · 2021–23</div>
+          <h3 class="text-display text-5xl font-bold text-white">Paris.</h3>
+          <p class="mt-4 text-base leading-relaxed text-white/60">An awkward, neon-lit interlude. He arrives in tears at Le Bourget, plays beneath the Eiffel Tower, and wins his eighth Ballon d'Or.</p>
+          <div class="mt-6 grid grid-cols-3 gap-4">
+            <div><div class="text-display text-3xl font-bold text-gold">32</div><div class="mt-1 text-[10px] uppercase tracking-wider-2 text-white/50">Ligue 1 apps (Y1)</div></div>
+            <div><div class="text-display text-3xl font-bold text-gold">21</div><div class="mt-1 text-[10px] uppercase tracking-wider-2 text-white/50">Goals in pink</div></div>
+            <div><div class="text-display text-3xl font-bold text-gold">02</div><div class="mt-1 text-[10px] uppercase tracking-wider-2 text-white/50">Ligue 1 titles</div></div>
+          </div>
+        </div>
+      </article>
+      <article class="glass rounded-xl overflow-hidden reveal">
+        <div class="relative h-72 bg-cover bg-center" style="background-image:url('./src/assets/miami-inter.jpg');"></div>
+        <div class="p-8">
+          <div class="mb-2 text-xs uppercase tracking-wider-2 text-white/40">Chapter 05 · 2023–</div>
+          <h3 class="text-display text-5xl font-bold text-white">Miami.</h3>
+          <p class="mt-4 text-base leading-relaxed text-white/60">Sunset on South Beach. He doesn't slow down — he just smiles more. Inter Miami becomes a global pilgrimage.</p>
+          <div class="mt-6 grid grid-cols-3 gap-4">
+            <div><div class="text-display text-3xl font-bold text-gold">01</div><div class="mt-1 text-[10px] uppercase tracking-wider-2 text-white/50">Leagues Cup</div></div>
+            <div><div class="text-display text-3xl font-bold text-gold">20+</div><div class="mt-1 text-[10px] uppercase tracking-wider-2 text-white/50">Goals · Year 1</div></div>
+            <div><div class="text-display text-3xl font-bold text-gold">10</div><div class="mt-1 text-[10px] uppercase tracking-wider-2 text-white/50">The Pink Number</div></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   LIFE BEYOND THE PITCH — FAMILY                              -->
+<!-- ============================================================ -->
+<section id="family" class="relative px-6 py-28 border-t border-white/10">
+  <div class="mx-auto max-w-7xl">
+    <div class="mb-4 text-xs uppercase tracking-wider-2 text-sky reveal">Interlude</div>
+    <h2 class="reveal text-display font-bold text-white" style="font-size:clamp(2.4rem,5.5vw,5rem); line-height:0.95;">Beneath the spotlight, a <span class="gold-gradient-text">private man.</span></h2>
+    <p class="reveal mt-5 max-w-2xl text-base leading-relaxed text-white/60">
+      For all the stadiums he fills, Messi's world is small and quiet. A childhood sweetheart since age nine. Three sons. A loyalty to his hometown that money could never buy.
+    </p>
+    <div class="mt-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="family-card glass rounded-md p-6 reveal">
+        <div class="mb-1 text-[10px] uppercase tracking-wider-2 text-gold">Wife</div>
+        <div class="text-display text-2xl text-white">Antonela Roccuzzo</div>
+        <p class="mt-2 text-sm text-white/55">Together since childhood — married 2017, in Rosario, their hometown.</p>
+      </div>
+      <div class="family-card glass rounded-md p-6 reveal">
+        <div class="mb-1 text-[10px] uppercase tracking-wider-2 text-gold">Firstborn</div>
+        <div class="text-display text-2xl text-white">Thiago</div>
+        <p class="mt-2 text-sm text-white/55">Born 2012. Has been photographed at pitchside just like his old man dreamed.</p>
+      </div>
+      <div class="family-card glass rounded-md p-6 reveal">
+        <div class="mb-1 text-[10px] uppercase tracking-wider-2 text-gold">Sons</div>
+        <div class="text-display text-2xl text-white">Mateo & Ciro</div>
+        <p class="mt-2 text-sm text-white/55">The two youngest, born 2015 and 2018 — chaos and joy in equal measure.</p>
+      </div>
+      <div class="family-card glass rounded-md p-6 reveal">
+        <div class="mb-1 text-[10px] uppercase tracking-wider-2 text-gold">Fondation</div>
+        <div class="text-display text-2xl text-white">Leo Messi Foundation</div>
+        <p class="mt-2 text-sm text-white/55">Access to health, education and sport for vulnerable children worldwide.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   THE TIMELINE                                                -->
+<!-- ============================================================ -->
+<section id="timeline" class="relative px-6 py-28">
+  <div class="mx-auto max-w-5xl">
+    <div class="mb-4 text-xs uppercase tracking-wider-2 text-gold reveal">The Concise Timeline</div>
+    <h2 class="reveal text-display font-bold text-white" style="font-size:clamp(2.4rem,5.5vw,5rem); line-height:0.95;">A life, <span class="gold-gradient-text">year by year.</span></h2>
+    <div class="tl-reveal relative mt-16 border-l-2 border-gold/30 pl-8">
+      <div class="tl-step relative mb-10 reveal">
+        <span class="absolute -left-[41px] top-1 h-3 w-3 rounded-full bg-gold"></span>
+        <div class="text-display text-2xl font-bold text-gold">1987</div>
+        <p class="mt-1 text-sm text-white/60">Born 24 June in Rosario, Argentina — the third of four children.</p>
+      </div>
+      <div class="tl-step relative mb-10 reveal">
+        <span class="absolute -left-[41px] top-1 h-3 w-3 rounded-full bg-sky"></span>
+        <div class="text-display text-2xl font-bold text-sky">2000</div>
+        <p class="mt-1 text-sm text-white/60">Signed by Barcelona on a paper napkin at age 13.</p>
+      </div>
+      <div class="tl-step relative mb-10 reveal">
+        <span class="absolute -left-[41px] top-1 h-3 w-3 rounded-full bg-gold"></span>
+        <div class="text-display text-2xl font-bold text-gold">2005</div>
+        <p class="mt-1 text-sm text-white/60">Senior debut for Barça and Argentina. Wins his first U-20 World Cup, and the Golden Shoe.</p>
+      </div>
+      <div class="tl-step relative mb-10 reveal">
+        <span class="absolute -left-[41px] top-1 h-3 w-3 rounded-full bg-sky"></span>
+        <div class="text-display text-2xl font-bold text-sky">2009</div>
+        <p class="mt-1 text-sm text-white/60">Pep Guardiola's Barça win the sextuple. Messi, first of his eight Ballons d'Or.</p>
+      </div>
+      <div class="tl-step relative mb-10 reveal">
+        <span class="absolute -left-[41px] top-1 h-3 w-3 rounded-full bg-gold"></span>
+        <div class="text-display text-2xl font-bold text-gold">2012</div>
+        <p class="mt-1 text-sm text-white/60">91 goals in a single calendar year — the all-time record.</p>
+      </div>
+      <div class="tl-step relative mb-10 reveal">
+        <span class="absolute -left-[41px] top-1 h-3 w-3 rounded-full bg-sky"></span>
+        <div class="text-display text-2xl font-bold text-sky">2021</div>
+        <p class="mt-1 text-sm text-white/60">Copa América victory — Argentina's first in 28 years.</p>
+      </div>
+      <div class="tl-step relative mb-10 reveal">
+        <span class="absolute -left-[41px] top-1 h-3 w-3 rounded-full bg-gold"></span>
+        <div class="text-display text-2xl font-bold text-gold">2022</div>
+        <p class="mt-1 text-sm text-white/60">World Cup triumph in Qatar. Golden Ball, and finally, the one that mattered.</p>
+      </div>
+      <div class="tl-step relative reveal">
+        <span class="absolute -left-[41px] top-1 h-3 w-3 rounded-full bg-sky"></span>
+        <div class="text-display text-2xl font-bold text-sky">2023–</div>
+        <p class="mt-1 text-sm text-white/60">Inter Miami. The final act — and the game is warmer for it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   MEMORIES · PHOTO GALLERY                                    -->
+<!-- ============================================================ -->
+<section id="memories" class="relative px-6 py-28 border-t border-white/10">
+  <div class="mx-auto max-w-7xl">
+    <div class="mb-4 text-xs uppercase tracking-wider-2 text-sky reveal">Memories</div>
+    <h2 class="reveal text-display font-bold text-white" style="font-size:clamp(2.4rem,5.5vw,5rem); line-height:0.95;">Moments we'll <span class="gold-gradient-text">never forget.</span></h2>
+    <p class="reveal mt-5 max-w-2xl text-base leading-relaxed text-white/60">
+      A gallery of the images that defined an era. Every frame a memory; every memory a piece of the legend.
+    </p>
+    <div id="memory-grid" class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <figure class="memory-card group relative aspect-[4/5] overflow-hidden rounded-md border border-white/10 shadow-xl reveal">
+        <img src="./src/assets/world-cup-glory.jpg" alt="Messi lifts the World Cup" loading="lazy" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        <figcaption class="absolute inset-x-0 bottom-0 p-5" style="background:linear-gradient(to top, rgba(5,6,13,0.95), transparent);">
+          <div class="text-xs uppercase tracking-wider-2 text-gold">Qatar · 2022</div>
+          <div class="mt-1 text-display text-lg text-white">The crowning glory</div>
+        </figcaption>
+      </figure>
+      <figure class="memory-card group relative aspect-[4/5] overflow-hidden rounded-md border border-white/10 shadow-xl reveal">
+        <img src="./src/assets/rosario-childhood.jpg" alt="Messi's childhood" loading="lazy" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        <figcaption class="absolute inset-x-0 bottom-0 p-5" style="background:linear-gradient(to top, rgba(5,6,13,0.95), transparent);">
+          <div class="text-xs uppercase tracking-wider-2 text-gold">Rosario · 1987</div>
+          <div class="mt-1 text-display text-lg text-white">Where it all began</div>
+        </figcaption>
+      </figure>
+      <figure class="memory-card group relative aspect-[4/5] overflow-hidden rounded-md border border-white/10 shadow-xl reveal">
+        <img src="./src/assets/copa america.jpg" alt="Messi with Copa América" loading="lazy" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        <figcaption class="absolute inset-x-0 bottom-0 p-5" style="background:linear-gradient(to top, rgba(5,6,13,0.95), transparent);">
+          <div class="text-xs uppercase tracking-wider-2 text-sky">Copa América · 2021</div>
+          <div class="mt-1 text-display text-lg text-white">Redemption for a nation</div>
+        </figcaption>
+      </figure>
+      <figure class="memory-card group relative aspect-[4/5] overflow-hidden rounded-md border border-white/10 shadow-xl reveal">
+        <img src="./src/assets/messi ballandor.webp" alt="Messi with the Ballon d'Or" loading="lazy" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        <figcaption class="absolute inset-x-0 bottom-0 p-5" style="background:linear-gradient(to top, rgba(5,6,13,0.95), transparent);">
+          <div class="text-xs uppercase tracking-wider-2 text-gold">Ballon d'Or · ×8</div>
+          <div class="mt-1 text-display text-lg text-white">The unshakable reign</div>
+        </figcaption>
+      </figure>
+      <figure class="memory-card group relative aspect-[4/5] overflow-hidden rounded-md border border-white/10 shadow-xl reveal">
+        <img src="./src/assets/ucl.jpg" alt="Messi with the Champions League" loading="lazy" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        <figcaption class="absolute inset-x-0 bottom-0 p-5" style="background:linear-gradient(to top, rgba(5,6,13,0.95), transparent);">
+          <div class="text-xs uppercase tracking-wider-2 text-sky">Champions League · ×4</div>
+          <div class="mt-1 text-display text-lg text-white">Europe, conquered</div>
+        </figcaption>
+      </figure>
+      <figure class="memory-card group relative aspect-[4/5] overflow-hidden rounded-md border border-white/10 shadow-xl reveal">
+        <img src="./src/assets/miami-inter.jpg" alt="Messi at Inter Miami" loading="lazy" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        <figcaption class="absolute inset-x-0 bottom-0 p-5" style="background:linear-gradient(to top, rgba(5,6,13,0.95), transparent);">
+          <div class="text-xs uppercase tracking-wider-2 text-gold">Miami · 2023</div>
+          <div class="mt-1 text-display text-lg text-white">The final chapter</div>
+        </figcaption>
+      </figure>
+      <figure class="memory-card group relative aspect-[4/5] overflow-hidden rounded-md border border-white/10 shadow-xl reveal">
+        <img src="./src/assets/paris-psg.jpg" alt="Messi at PSG" loading="lazy" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        <figcaption class="absolute inset-x-0 bottom-0 p-5" style="background:linear-gradient(to top, rgba(5,6,13,0.95), transparent);">
+          <div class="text-xs uppercase tracking-wider-2 text-sky">Paris · 2021</div>
+          <div class="mt-1 text-display text-lg text-white">The Eiffel Tower era</div>
+        </figcaption>
+      </figure>
+      <figure class="memory-card group relative aspect-[4/5] overflow-hidden rounded-md border border-white/10 shadow-xl reveal">
+        <img src="./src/assets/barcelona-stadium.jpg" alt="Camp Nou, Barcelona" loading="lazy" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        <figcaption class="absolute inset-x-0 bottom-0 p-5" style="background:linear-gradient(to top, rgba(5,6,13,0.95), transparent);">
+          <div class="text-xs uppercase tracking-wider-2 text-gold">Camp Nou · 2000–21</div>
+          <div class="mt-1 text-display text-lg text-white">Two decades at home</div>
+        </figcaption>
+      </figure>
+      <figure class="memory-card group relative aspect-[4/5] overflow-hidden rounded-md border border-white/10 shadow-xl reveal">
+        <img src="./src/assets/messii.jpg" alt="Messi celebrating" loading="lazy" class="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+        <figcaption class="absolute inset-x-0 bottom-0 p-5" style="background:linear-gradient(to top, rgba(5,6,13,0.95), transparent);">
+          <div class="text-xs uppercase tracking-wider-2 text-sky">The Legend</div>
+          <div class="mt-1 text-display text-lg text-white">A life in the game</div>
+        </figcaption>
+      </figure>
+    </div>
+    <p class="reveal mt-8 text-center text-xs uppercase tracking-wider-2 text-white/40">
+      More memories coming soon — drop your favourite photos into <span class="text-gold">src/assets</span> and they'll appear here.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   FULLSCREEN GALLERY VIEWER (PDF §8)                          -->
+<!-- ============================================================ -->
+<div id="lightbox" class="fixed inset-0 z-[70] hidden items-center justify-center bg-black/95 p-6" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button id="lb-close" class="absolute right-6 top-6 z-10 cursor-pointer rounded-full border border-white/15 px-4 py-2 text-[10px] uppercase tracking-wider-2 text-white/60 transition-colors hover:border-gold/60 hover:text-gold" aria-label="Close">Close ✕</button>
+  <button id="lb-prev" class="absolute left-4 top-1/2 z-10 -translate-y-1/2 cursor-pointer rounded-full border border-white/15 px-4 py-3 text-xl text-white/70 transition-colors hover:border-gold/60 hover:text-gold" aria-label="Previous photo">←</button>
+  <button id="lb-next" class="absolute right-4 top-1/2 z-10 -translate-y-1/2 cursor-pointer rounded-full border border-white/15 px-4 py-3 text-xl text-white/70 transition-colors hover:border-gold/60 hover:text-gold" aria-label="Next photo">→</button>
+  <figure class="flex max-h-[88vh] max-w-[90vw] flex-col items-center">
+    <img id="lb-img" src="" alt="" class="max-h-[78vh] max-w-[90vw] object-contain shadow-2xl" />
+    <figcaption id="lb-caption" class="mt-5 text-center text-sm uppercase tracking-wider-2 text-white/70"></figcaption>
+  </figure>
+</div>
+
+<!-- ============================================================ -->
+<!--   LEGEND MOMENTS · VIDEO GALLERY                              -->
+<!-- ============================================================ -->
+<section id="legend-videos" class="relative px-6 py-28 border-t border-white/10">
+  <div class="mx-auto max-w-7xl">
+    <div class="mb-4 text-xs uppercase tracking-wider-2 text-sky reveal">Legend Moments</div>
+    <h2 class="reveal text-display font-bold text-white" style="font-size:clamp(2.4rem,5.5vw,5rem); line-height:0.95;">Unforgettable <span class="gold-gradient-text">moments, on replay.</span></h2>
+    <p class="reveal mt-5 max-w-2xl text-base leading-relaxed text-white/60">
+      The moments that made the whole world stop and watch. These legendary clips are being added — play them and relive the magic.
+    </p>
+
+    <div id="video-grid" class="mt-14 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <!-- Video slot 1 -->
+      <div class="legend-video group relative aspect-video overflow-hidden rounded-xl border border-white/15 bg-[#0a1430] shadow-2xl reveal">
+        <video class="absolute inset-0 h-full w-full object-cover" controls preload="metadata" poster="./src/assets/world-cup-glory.jpg">
+          <source src="./src/videos/moment-worldcup-2022.mp4" type="video/mp4" />
+          Your browser does not support video playback.
+        </video>
+        <div class="absolute inset-x-0 top-0 flex items-center justify-between p-4" style="background:linear-gradient(to bottom, rgba(8,16,42,0.85), transparent);">
+          <span class="rounded-full bg-black/40 px-3 py-1 text-[10px] uppercase tracking-wider-2 text-gold backdrop-blur">World Cup · 2022</span>
+        </div>
+        <div class="absolute inset-x-0 bottom-0 p-4" style="background:linear-gradient(to top, rgba(8,16,42,0.9), transparent);">
+          <div class="text-display text-lg text-white">The crowning glory</div>
+        </div>
+      </div>
+
+      <!-- Video slot 2 -->
+      <div class="legend-video group relative aspect-video overflow-hidden rounded-xl border border-white/15 bg-[#0a1430] shadow-2xl reveal">
+        <video class="absolute inset-0 h-full w-full object-cover" controls preload="metadata" poster="./src/assets/messi ballandor.webp">
+          <source src="./src/videos/moment-ballondor-8th.mp4" type="video/mp4" />
+          Your browser does not support video playback.
+        </video>
+        <div class="absolute inset-x-0 top-0 flex items-center justify-between p-4" style="background:linear-gradient(to bottom, rgba(8,16,42,0.85), transparent);">
+          <span class="rounded-full bg-black/40 px-3 py-1 text-[10px] uppercase tracking-wider-2 text-gold backdrop-blur">Ballon d'Or · ×8</span>
+        </div>
+        <div class="absolute inset-x-0 bottom-0 p-4" style="background:linear-gradient(to top, rgba(8,16,42,0.9), transparent);">
+          <div class="text-display text-lg text-white">Eight times the best</div>
+        </div>
+      </div>
+
+      <!-- Video slot 3 -->
+      <div class="legend-video group relative aspect-video overflow-hidden rounded-xl border border-white/15 bg-[#0a1430] shadow-2xl reveal">
+        <video class="absolute inset-0 h-full w-full object-cover" controls preload="metadata" poster="./src/assets/copa america.jpg">
+          <source src="./src/videos/moment-copa-2021.mp4" type="video/mp4" />
+          Your browser does not support video playback.
+        </video>
+        <div class="absolute inset-x-0 top-0 flex items-center justify-between p-4" style="background:linear-gradient(to bottom, rgba(8,16,42,0.85), transparent);">
+          <span class="rounded-full bg-black/40 px-3 py-1 text-[10px] uppercase tracking-wider-2 text-sky backdrop-blur">Copa América · 2021</span>
+        </div>
+        <div class="absolute inset-x-0 bottom-0 p-4" style="background:linear-gradient(to top, rgba(8,16,42,0.9), transparent);">
+          <div class="text-display text-lg text-white">Redemption of a nation</div>
+        </div>
+      </div>
+
+      <!-- Video slot 4 -->
+      <div class="legend-video group relative aspect-video overflow-hidden rounded-xl border border-white/15 bg-[#0a1430] shadow-2xl reveal">
+        <video class="absolute inset-0 h-full w-full object-cover" controls preload="metadata" poster="./src/assets/ucl.jpg">
+          <source src="./src/videos/moment-ucl-final.mp4" type="video/mp4" />
+          Your browser does not support video playback.
+        </video>
+        <div class="absolute inset-x-0 top-0 flex items-center justify-between p-4" style="background:linear-gradient(to bottom, rgba(8,16,42,0.85), transparent);">
+          <span class="rounded-full bg-black/40 px-3 py-1 text-[10px] uppercase tracking-wider-2 text-gold backdrop-blur">Champions League</span>
+        </div>
+        <div class="absolute inset-x-0 bottom-0 p-4" style="background:linear-gradient(to top, rgba(8,16,42,0.9), transparent);">
+          <div class="text-display text-lg text-white">Europe conquered</div>
+        </div>
+      </div>
+
+      <!-- Video slot 5 -->
+      <div class="legend-video group relative aspect-video overflow-hidden rounded-xl border border-white/15 bg-[#0a1430] shadow-2xl reveal">
+        <video class="absolute inset-0 h-full w-full object-cover" controls preload="metadata" poster="./src/assets/rosario-childhood.jpg">
+          <source src="./src/videos/moment-getafe-2007.mp4" type="video/mp4" />
+          Your browser does not support video playback.
+        </video>
+        <div class="absolute inset-x-0 top-0 flex items-center justify-between p-4" style="background:linear-gradient(to bottom, rgba(8,16,42,0.85), transparent);">
+          <span class="rounded-full bg-black/40 px-3 py-1 text-[10px] uppercase tracking-wider-2 text-sky backdrop-blur">Getafe · 2007</span>
+        </div>
+        <div class="absolute inset-x-0 bottom-0 p-4" style="background:linear-gradient(to top, rgba(8,16,42,0.9), transparent);">
+          <div class="text-display text-lg text-white">The greatest solo goal</div>
+        </div>
+      </div>
+
+      <!-- Video slot 6 -->
+      <div class="legend-video group relative aspect-video overflow-hidden rounded-xl border border-white/15 bg-[#0a1430] shadow-2xl reveal">
+        <video class="absolute inset-0 h-full w-full object-cover" controls preload="metadata" poster="./src/assets/messii.jpg">
+          <source src="./src/videos/moment-miami-lift.mp4" type="video/mp4" />
+          Your browser does not support video playback.
+        </video>
+        <div class="absolute inset-x-0 top-0 flex items-center justify-between p-4" style="background:linear-gradient(to bottom, rgba(8,16,42,0.85), transparent);">
+          <span class="rounded-full bg-black/40 px-3 py-1 text-[10px] uppercase tracking-wider-2 text-gold backdrop-blur">Miami · 2023</span>
+        </div>
+        <div class="absolute inset-x-0 bottom-0 p-4" style="background:linear-gradient(to top, rgba(8,16,42,0.9), transparent);">
+          <div class="text-display text-lg text-white">The final chapter</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="reveal mt-8 text-center text-xs uppercase tracking-wider-2 text-white/40">
+      Placeholders ready — drop your <span class="text-gold">MP4</span> clips into <span class="text-gold">src/videos</span> with the matching filenames and they'll play here.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   THE FINAL MATCH · RETIREMENT CHAPTER (PDF §11)              -->
+<!-- ============================================================ -->
+<section id="final-match" class="relative overflow-hidden px-6 py-32 text-center">
+  <div class="absolute inset-0 -z-10" style="background:radial-gradient(ellipse 70% 50% at center, rgba(35,60,130,0.35), transparent 70%);"></div>
+  <div class="absolute inset-x-0 top-0 h-64 -z-10" style="background:linear-gradient(to bottom, rgba(8,16,42,0.85), transparent);"></div>
+  <div class="absolute inset-x-0 bottom-0 h-64 -z-10" style="background:linear-gradient(to top, rgba(8,16,42,0.95), transparent);"></div>
+
+  <div class="mx-auto max-w-4xl">
+    <div class="reveal mb-4 text-xs uppercase tracking-wider-2 text-sky">The Final Whistle</div>
+    <h2 class="reveal text-display font-bold leading-none text-white" style="font-size:clamp(2.6rem,6.5vw,5.5rem); line-height:0.95;">
+      One last night<br />under the <span class="gold-gradient-text">lights.</span>
+    </h2>
+    <p class="reveal mx-auto mt-8 max-w-2xl text-base leading-relaxed text-white/60">
+      Every career ends the same way — ninety minutes, a result, and a crowd that refuses to leave. When that night comes for Messi, the numbers he takes with him will already be folklore. The last whistle is just the beginning of the legend.
+    </p>
+
+    <div class="reveal mt-12 inline-flex items-center gap-4 rounded-full border border-gold/30 bg-black/30 px-8 py-4 backdrop-blur">
+      <span class="h-px w-8 bg-gold/50"></span>
+      <span class="text-xs uppercase tracking-wider-2 text-white/60">The stadium falls silent · The stories remain</span>
+      <span class="h-px w-8 bg-gold/50"></span>
+    </div>
+
+    <div class="mt-16 grid grid-cols-2 gap-8 lg:grid-cols-4">
+      <div class="final-stat reveal" data-v="1103">
+        <div class="text-display font-bold leading-none text-white" style="font-size:clamp(2.4rem,5vw,4.2rem);"><span class="goat-num gold-gradient-text" data-v="1103">0</span></div>
+        <div class="mt-3 text-[10px] uppercase tracking-wider-2 text-white/50">Career appearances</div>
+      </div>
+      <div class="final-stat reveal" data-v="872">
+        <div class="text-display font-bold leading-none text-white" style="font-size:clamp(2.4rem,5vw,4.2rem);"><span class="goat-num gold-gradient-text" data-v="872">0</span></div>
+        <div class="mt-3 text-[10px] uppercase tracking-wider-2 text-white/50">Career goals</div>
+      </div>
+      <div class="final-stat reveal" data-v="384">
+        <div class="text-display font-bold leading-none text-white" style="font-size:clamp(2.4rem,5vw,4.2rem);"><span class="goat-num gold-gradient-text" data-v="384">0</span></div>
+        <div class="mt-3 text-[10px] uppercase tracking-wider-2 text-white/50">Career assists</div>
+      </div>
+      <div class="final-stat reveal" data-v="45">
+        <div class="text-display font-bold leading-none text-white" style="font-size:clamp(2.4rem,5vw,4.2rem);"><span class="goat-num gold-gradient-text" data-v="45">0</span></div>
+        <div class="mt-3 text-[10px] uppercase tracking-wider-2 text-white/50">Trophies</div>
+      </div>
+    </div>
+
+    <blockquote class="reveal mx-auto mt-16 max-w-2xl text-display text-lg italic leading-relaxed text-white/75">
+      "When I saw the ball, I knew what I had to do. It was always the ball, and those few people who gave everything for me."
+    </blockquote>
+    <div class="reveal mt-4 text-xs uppercase tracking-wider-2 text-gold">Lionel Messi</div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!--   CODA / FOOTER                                               -->
+<!-- ============================================================ -->
+<footer id="coda" class="relative border-t border-white/10 px-6 py-28 text-center">
+  <div class="mx-auto max-w-4xl">
+    <div class="reveal mb-4 text-xs uppercase tracking-wider-2 text-gold">Fin · Final Farewell</div>
+    <h2 class="reveal text-display font-bold text-white" style="font-size:clamp(2.6rem,7vw,6.5rem); line-height:0.9;">
+      The game ends.<br />The <span class="gold-gradient-text">legacy doesn't.</span>
+    </h2>
+    <p class="reveal mx-auto mt-8 max-w-xl text-sm leading-relaxed text-white/50">
+      A tribute to Lionel Andrés Messi, part of The Retirement Park — a growing hall of fame honouring football's retired greats. No affiliation with the player, his clubs, or FIFA. Built with restraint, GSAP, and a great deal of love.
+    </p>
+    <div class="reveal mt-10 flex flex-wrap items-center justify-center gap-3">
+      <span class="glass rounded-full px-4 py-2 text-[10px] uppercase tracking-wider-2 text-white/50">Rosario</span>
+      <span class="text-gold">·</span>
+      <span class="glass rounded-full px-4 py-2 text-[10px] uppercase tracking-wider-2 text-white/50">Barcelona</span>
+      <span class="text-gold">·</span>
+      <span class="glass rounded-full px-4 py-2 text-[10px] uppercase tracking-wider-2 text-white/50">Paris</span>
+      <span class="text-gold">·</span>
+      <span class="glass rounded-full px-4 py-2 text-[10px] uppercase tracking-wider-2 text-white/50">Miami</span>
+    </div>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+
+</body>
+</html>
